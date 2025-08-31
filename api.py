@@ -132,23 +132,35 @@ async def enqueue_job(job_request: JobRequest):
 async def get_job_status(job_id: str):
     """Get the status and result of a job"""
     try:
-        job = await redis_pool.get_job(job_id)
+        # Create a Job object to check status
+        from arq.jobs import Job
+        job = Job(job_id, redis_pool)
         
-        if not job:
-            raise HTTPException(status_code=404, detail=f"Job {job_id} not found")
+        # Get job status
+        job_status = await job.status()
         
-        # Get job result if completed
+        # Get job result and info if completed
         result = None
         error = None
         
-        if job.status.name == "complete":
-            result = job.result
-        elif job.status.name == "failed":
-            error = str(job.result) if job.result else "Job failed with unknown error"
+        if job_status.name == "complete":
+            try:
+                result = await job.result()
+            except Exception as e:
+                logger.warning(f"Failed to get job result: {e}")
+        elif job_status.name == "failed":
+            try:
+                job_info = await job.info()
+                if job_info and hasattr(job_info, 'result'):
+                    error = str(job_info.result)
+                else:
+                    error = "Job failed with unknown error"
+            except Exception as e:
+                error = f"Job failed: {str(e)}"
         
         return JobStatusResponse(
             job_id=job_id,
-            status=job.status.name,
+            status=job_status.name,
             result=result,
             error=error
         )
