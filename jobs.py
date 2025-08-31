@@ -2,6 +2,7 @@ import asyncio
 import logging
 from typing import Any, Dict
 
+
 # Example job functions
 async def send_email(ctx: Dict[str, Any], to: str, subject: str, body: str) -> str:
     """

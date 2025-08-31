@@ -1,10 +1,11 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import Dict, Any, Optional
 import asyncio
 import logging
+from typing import Any, Dict, Optional
+
 from arq import create_pool
 from arq.connections import RedisSettings
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 
 # Configure logging
 logging.basicConfig(

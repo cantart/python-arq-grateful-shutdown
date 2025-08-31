@@ -1,8 +1,10 @@
-import logging
 import asyncio
+import logging
+
 from arq import create_pool, cron
 from arq.connections import RedisSettings
-from jobs import send_email, process_data, long_running_task
+
+from jobs import long_running_task, process_data, send_email
 
 # Configure logging
 logging.basicConfig(
