@@ -24,10 +24,9 @@ async def shutdown(ctx):
     logger.info("Worker shutting down...")
 
 
-# Example cron job
-@cron(hour=0, minute=0)  # Run daily at midnight
+# Example cron job function
 async def daily_cleanup(ctx):
-    """Example cron job that runs daily"""
+    """Example cron job that runs daily at midnight"""
     logger.info("Running daily cleanup...")
     await asyncio.sleep(1)
     logger.info("Daily cleanup completed")
@@ -38,7 +37,11 @@ class WorkerSettings:
         send_email,
         process_data, 
         long_running_task,
-        daily_cleanup,
+    ]
+    
+    # Cron jobs configuration
+    cron_jobs = [
+        cron(daily_cleanup, hour=0, minute=0),  # Run daily at midnight
     ]
     
     on_startup = startup
