@@ -2,6 +2,8 @@ services:
   redis:
     image: redis:7-alpine
     container_name: arq-redis
+    ports:
+      - "6378:6379"
     volumes:
       - redis_data:/data
     healthcheck:
