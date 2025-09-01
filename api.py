@@ -1,4 +1,3 @@
-import asyncio
 import logging
 from typing import Any, Dict, Optional
 
@@ -176,42 +175,6 @@ async def get_job_status(job_id: str):
     except Exception as e:
         logger.error(f"Failed to get job status: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to get job status: {str(e)}")
-
-@app.post("/jobs/{job_id}/cancel", response_model=JobCancelResponse)
-async def cancel_job(job_id: str, wait_seconds: Optional[float] = 10):
-    """Attempt to cancel a running or queued job by job_id.
-
-    Requires the worker to be started with `allow_abort_jobs=True`.
-    - If the job is queued or deferred, it is marked to be aborted before run.
-    - If the job is running, the worker will cancel it.
-    - `wait_seconds` controls how long to wait for confirmation.
-    """
-    try:
-        from arq.jobs import Job
-
-        if redis_pool is None:
-            raise HTTPException(status_code=503, detail="Redis pool not initialized")
-
-        job = Job(job_id, redis_pool)
-        # Try to abort; returns True if we observed cancellation via result polling
-        cancelled = await job.abort(timeout=wait_seconds or 0, poll_delay=0.2)
-        status = (await job.status()).name
-
-        msg = None
-        if not cancelled and status in {"not_found"}:
-            msg = "Job not found"
-        elif not cancelled and status in {"queued", "deferred"}:
-            msg = "Marked to abort before start"
-        elif not cancelled and status == "in_progress":
-            msg = "Cancellation requested; waiting did not confirm yet"
-
-        return JobCancelResponse(job_id=job_id, cancelled=cancelled, status=status, message=msg)
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Failed to cancel job {job_id}: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to cancel job: {str(e)}")
 
 @app.get("/jobs")
 async def list_jobs(limit: int = 10):
