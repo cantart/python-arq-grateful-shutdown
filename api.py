@@ -178,7 +178,7 @@ async def get_job_status(job_id: str):
         raise HTTPException(status_code=500, detail=f"Failed to get job status: {str(e)}")
 
 @app.post("/jobs/{job_id}/cancel", response_model=JobCancelResponse)
-async def cancel_job(job_id: str, wait_seconds: Optional[float] = 0):
+async def cancel_job(job_id: str, wait_seconds: Optional[float] = 10):
     """Attempt to cancel a running or queued job by job_id.
 
     Requires the worker to be started with `allow_abort_jobs=True`.
