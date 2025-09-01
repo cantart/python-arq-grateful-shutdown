@@ -59,3 +59,4 @@ class WorkerSettings:
     max_jobs = 10
     job_timeout = 300  # 5 minutes
     keep_result = 3600  # Keep results for 1 hour
+    job_completion_wait = 30  # seconds
