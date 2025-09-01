@@ -61,3 +61,5 @@ class WorkerSettings:
     job_timeout = 300  # 5 minutes
     keep_result = 3600  # Keep results for 1 hour
     job_completion_wait = 30  # seconds
+    # Allow jobs to be aborted via Job.abort (API cancel endpoint)
+    allow_abort_jobs = True
