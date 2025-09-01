@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from arq import create_pool, cron
+from arq import cron, func
 from arq.connections import RedisSettings
 
 from jobs import long_running_task, process_data, send_email
@@ -33,10 +33,11 @@ async def daily_cleanup(ctx):
 
 
 class WorkerSettings:
+    # Per-job timeouts via arq.func wrapper
     functions = [
-        send_email,
-        process_data, 
-        long_running_task,
+        func(send_email, timeout=15),        # short I/O
+        func(process_data, timeout=60),      # medium CPU/IO
+        func(long_running_task, timeout=300) # long tasks
     ]
     
     # Cron jobs configuration
